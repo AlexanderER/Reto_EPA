@@ -26,5 +26,6 @@ public class RetoApplication implements CommandLineRunner
 	public void run(String... args) throws Exception
 	{
 		sVenta.Crear_Vista_Ventas_Por_Producto();
+		sVenta.Actualizar_Total_Ventas();
 	}
 }

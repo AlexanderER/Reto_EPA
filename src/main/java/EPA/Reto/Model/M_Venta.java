@@ -3,6 +3,7 @@ package EPA.Reto.Model;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +19,8 @@ public class M_Venta
     private M_Cliente        customer;
     private boolean          couponUsed;
     private String           purchaseMethod;
+
+    private BigDecimal       total_Amount;   // Variable agregada para cumplir con el Punto 2 del Reto
 
 
     //------------------------------------------------------------(Constructor)
