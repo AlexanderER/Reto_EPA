@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Component
 public class S_Venta_Imp implements S_Venta
@@ -24,23 +24,23 @@ public class S_Venta_Imp implements S_Venta
     @Autowired
     R_Venta_Por_Producto rVentaPorProducto;
 
-    //------------------------------------------------------------ (Metodos)
-    @Override
-    public void Crear_Vista_Ventas_Por_Producto()
+    //------------------------------------------------------------ (Metodos Comunes)
+    private List<M_Venta_Por_Producto> Generar_Lista_Ventas_Por_Producto(List<M_Venta> p_lVentas)
     {
-        System.out.println("..........................................................................");
-        System.out.println("[Inicio Proceso: Creación Vista de Ventas Por Producto]");
+        // Defino un Diccionario de Tipo Mapa
+        Map<String, Integer> Mapa_Ventas = new HashMap<>();
+
+        // Defino la Lista que retornare con el resultado Final
+        List<M_Venta_Por_Producto> l_Lista_Final = new ArrayList<>();
 
         try
         {
-            // Defino un Diccionario de Tipo Mapa
-            Map<String, Integer> Mapa_Ventas = new HashMap<>();
-
-            // Obtengo la Lista con todas las Ventas de la BD
-            List<M_Venta> l_Ventas = rVenta.findAll();
+            ////////////
+            // Paso 1 //
+            ////////////
 
             // Recorro la Lista de Facturas
-            for (M_Venta venta : l_Ventas)
+            for (M_Venta venta : p_lVentas)
             {
                 // Obtengo las Lista de Productos de esa Factura
                 List<M_Producto> l_Productos = venta.getItems();
@@ -58,8 +58,63 @@ public class S_Venta_Imp implements S_Venta
 
             }   // Fin Ciclo Facturas
 
+
+
+            ////////////
+            // Paso 2 //
+            ////////////
+
+            // Recorro el Mapa creado
+            for(Map.Entry<String, Integer> row_Map : Mapa_Ventas.entrySet())
+            {
+                // Inicializo un Objeto de la Vista
+                M_Venta_Por_Producto venta_por_producto = new M_Venta_Por_Producto();
+
+                // Seteo el Nombre y Cantidad de veces que ha sido vendido al Objeto de la Vista
+                venta_por_producto.setProductName(row_Map.getKey());
+                venta_por_producto.setQuantity(row_Map.getValue());
+
+                // Agrego el Objeto a la lista
+                l_Lista_Final.add(venta_por_producto);
+            }
+
+
+            ////////////
+            // Paso 3 //
+            ////////////
+
+            // Ordeno la Lista de forma descendente por la Cantidad de veces que ha sido vendido
+            Comparator<M_Venta_Por_Producto> comparadorPorCantidad = Comparator.comparing(M_Venta_Por_Producto::getQuantity).reversed();
+            l_Lista_Final.sort(comparadorPorCantidad);
+        }
+        catch (Exception ex)
+        {
+            //throw new Exception("Error generando la Lista con cantidad de veces que ha sido vendido un producto. " + ex.getMessage());
+        }
+
+        return l_Lista_Final;
+    }
+
+
+    //------------------------------------------------------------ (Metodos Consola)
+    @Override
+    public void Crear_Vista_Ventas_Por_Producto()
+    {
+        System.out.println("..........................................................................");
+        System.out.println("[Inicio Proceso: Creación Vista de Ventas Por Producto]");
+
+        try
+        {
+            // Obtengo la Lista con todas las Ventas de la BD
+            List<M_Venta> l_Ventas = rVenta.findAll();
+
+            // Creo Variable que recibira la Lista con el resumen de las ventas
+            List<M_Venta_Por_Producto> l_Venta_Por_Producto = new ArrayList<>();
+
+            l_Venta_Por_Producto = this.Generar_Lista_Ventas_Por_Producto(l_Ventas);
+
             // Guardar en BD el resultado
-            this.Guardar_Vista(Mapa_Ventas, l_Ventas);
+            this.Guardar_Vista(l_Ventas, l_Venta_Por_Producto);
         }
         catch (Exception ex)
         {
@@ -70,38 +125,21 @@ public class S_Venta_Imp implements S_Venta
         System.out.println("..........................................................................");
     }
 
-    private void Guardar_Vista(Map<String, Integer> p_Mapa, List<M_Venta> p_lVentas)
+    private void Guardar_Vista(List<M_Venta> p_lVentas, List<M_Venta_Por_Producto> p_lVenta_Por_Producto)
     {
         try
         {
             // Limpiar Vista BD
             rVentaPorProducto.deleteAll();
 
-            // Creo lista para almacenar los datos del Mapa
-            List<M_Venta_Por_Producto> l_Venta_Por_Producto = new ArrayList<>();
-
-            // Recorro el Mapa creado
-            for(Map.Entry<String, Integer> row_Map : p_Mapa.entrySet())
-            {
-                // Inicializo un Objeto de la Vista
-                M_Venta_Por_Producto venta_por_producto = new M_Venta_Por_Producto();
-
-                // Seteo el Nombre y Cantidad de veces que ha sido vendido al Objeto de la Vista
-                venta_por_producto.setProductName(row_Map.getKey());
-                venta_por_producto.setQuantity(row_Map.getValue());
-
-                // Agrego el Objeto a la lista
-                l_Venta_Por_Producto.add(venta_por_producto);
-            }
-
             // Guardo la lista en la BD
-            List<M_Venta_Por_Producto> l_Inserted = rVentaPorProducto.saveAll(l_Venta_Por_Producto);
+            List<M_Venta_Por_Producto> l_Inserted = rVentaPorProducto.saveAll(p_lVenta_Por_Producto);
 
             // Imprimir Resultado
             //-----------------------------------------------------------------------------------------------------
             if(l_Inserted != null)
             {
-                if(l_Inserted.size() == l_Venta_Por_Producto.size())
+                if(l_Inserted.size() == p_lVenta_Por_Producto.size())
                 {
                     System.out.println("Vista creada exitosamente." +
                             "\nTotal de Facturas: " + p_lVentas.size() +
@@ -111,7 +149,7 @@ public class S_Venta_Imp implements S_Venta
                 {
                     System.out.println("Vista Creada con Errores." +
                             "\nTotal de Facturas: " + p_lVentas.size() +
-                            "\nTotal de Productos distintos: " + p_Mapa.size() +
+                            "\nTotal de Productos distintos: " + p_lVenta_Por_Producto.size() +
                             "\nTotal de Productos insertados: " + l_Inserted.size());
                 }
             }
@@ -196,5 +234,42 @@ public class S_Venta_Imp implements S_Venta
         System.out.println("[Fin Proceso: Actualización Monto Total de la Coleccion de Ventas]");
         System.out.println("..........................................................................");
     }
+
+
+    //------------------------------------------------------------ (Metodos Web)
+    @Override
+    public List<M_Venta_Por_Producto> Obtener_Top_Productos_Vendidos(int p_iTop, Date p_dFecha_Inicio, Date p_dFecha_Fin)
+    {
+        // Creo Variable que retornara el Top de los Productos
+        List<M_Venta_Por_Producto> l_Top_Productos = new ArrayList<>();
+
+        try
+        {
+            // Creo Variable que recibira la Lista con el resumen de las ventas
+            List<M_Venta_Por_Producto> l_Venta_Por_Producto = new ArrayList<>();
+
+            // Obtengo la Lista con todas las Ventas de la BD entre un rango de Fechas
+            List<M_Venta> l_Ventas = rVenta.findBySaleDateBetween(p_dFecha_Inicio, p_dFecha_Fin);
+
+            l_Venta_Por_Producto = this.Generar_Lista_Ventas_Por_Producto(l_Ventas);
+
+            // Valido que el Top N, no sea mayor a la cantidad de la lista.
+            // En ese caso setea como top el numero de elementos de la lista.
+            if(p_iTop > l_Venta_Por_Producto.size())
+            {
+                p_iTop = l_Venta_Por_Producto.size();
+            }
+
+            // Guardo el Top de Productos en la lista que sera retornada
+            l_Top_Productos = l_Venta_Por_Producto.subList(0, p_iTop);
+        }
+        catch (Exception ex)
+        {
+            System.out.println("Error Generando el Top de veces que ha sido vendido un producto: " + ex.getMessage());
+        }
+
+        return l_Top_Productos;
+    }
+
 
 }
