@@ -6,6 +6,9 @@ import EPA.Reto.Model.M_Venta_Por_Producto;
 import EPA.Reto.Repository.R_Venta;
 import EPA.Reto.Repository.R_Venta_Por_Producto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -291,6 +294,20 @@ public class S_Venta_Imp implements S_Venta
         }
 
         return l_Venta_Por_Producto;
+    }
+
+    @Override
+    public Page<M_Venta> Obtener_Facturas_Por_Pagina(int p_iPagina, int p_iTotal_Por_Pagina)
+    {
+        Page<M_Venta> pPagina = rVenta.findAll(PageRequest.of(p_iPagina, p_iTotal_Por_Pagina));
+
+        return  pPagina;
+    }
+
+    @Override
+    public void Crear_Factura(M_Venta p_Venta)
+    {
+        rVenta.save(p_Venta);
     }
 
 
