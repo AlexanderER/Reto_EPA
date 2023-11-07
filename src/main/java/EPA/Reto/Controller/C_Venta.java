@@ -52,7 +52,22 @@ public class C_Venta
         return l_Venta_Por_Producto;
     }
 
+    @RequestMapping(method = RequestMethod.GET,
+                    value = "Ventas/Total_Productos_Vendidos")
+    public  List<M_Venta_Por_Producto> Total_Productos_Vendidos()
+    {
+        List<M_Venta_Por_Producto> l_Venta_Por_Producto = new ArrayList<>();
 
+        try
+        {
+            l_Venta_Por_Producto = sVenta.Obtener_Total_Productos_Vendidos();
+        }
+        catch (Exception ex)
+        {
+        }
+
+        return l_Venta_Por_Producto;
+    }
 
 
 

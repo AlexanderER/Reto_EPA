@@ -271,5 +271,27 @@ public class S_Venta_Imp implements S_Venta
         return l_Top_Productos;
     }
 
+    @Override
+    public List<M_Venta_Por_Producto> Obtener_Total_Productos_Vendidos()
+    {
+        // Creo Variable que retornara el Top de los Productos
+        List<M_Venta_Por_Producto> l_Venta_Por_Producto = new ArrayList<>();
+
+        try
+        {
+            // Recreo la Vista en caso de que hayan cambios en ventas para reflejar los mismos
+            this.Crear_Vista_Ventas_Por_Producto();
+
+            // Obtengo la Lista de la Vista con todos los registros
+            l_Venta_Por_Producto = rVentaPorProducto.findAll();
+        }
+        catch (Exception ex)
+        {
+            System.out.println("Error Generando lista Completa de veces que ha sido vendido un producto. " + ex.getMessage());
+        }
+
+        return l_Venta_Por_Producto;
+    }
+
 
 }

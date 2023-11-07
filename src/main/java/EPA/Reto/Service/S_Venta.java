@@ -13,4 +13,6 @@ public interface S_Venta
     void Actualizar_Total_Ventas();
 
     List<M_Venta_Por_Producto> Obtener_Top_Productos_Vendidos(int p_iTop, Date p_dFecha_Inicio, Date p_dFecha_Fin);
+
+    List<M_Venta_Por_Producto> Obtener_Total_Productos_Vendidos();
 }
