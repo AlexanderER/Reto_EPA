@@ -24,10 +24,9 @@ public class M_Venta
 
 
     //------------------------------------------------------------(Constructor)
-    public M_Venta(String id, Date saleDate, List<M_Producto> items, String storeLocation, M_Cliente customer, boolean couponUsed, String purchaseMethod)
+    public M_Venta(Date saleDate, List<M_Producto> items, String storeLocation, M_Cliente customer, boolean couponUsed, String purchaseMethod)
     {
         super();
-        this.id             = id;
         this.saleDate       = saleDate;
         this.items          = items;
         this.storeLocation  = storeLocation;
