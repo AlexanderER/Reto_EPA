@@ -20,5 +20,5 @@ public interface S_Venta
 
     Page<M_Venta> Obtener_Facturas_Por_Pagina(int p_iPagina, int p_iTotal_Por_Pagina);
 
-    void Crear_Factura(M_Venta p_Venta);
+    M_Venta Crear_Factura(M_Venta p_Venta);
 }

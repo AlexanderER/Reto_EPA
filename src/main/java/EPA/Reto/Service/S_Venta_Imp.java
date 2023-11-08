@@ -299,15 +299,35 @@ public class S_Venta_Imp implements S_Venta
     @Override
     public Page<M_Venta> Obtener_Facturas_Por_Pagina(int p_iPagina, int p_iTotal_Por_Pagina)
     {
-        Page<M_Venta> pPagina = rVenta.findAll(PageRequest.of(p_iPagina, p_iTotal_Por_Pagina));
+        Page<M_Venta> pPagina = null;
+
+        try
+        {
+            pPagina = rVenta.findAll(PageRequest.of(p_iPagina, p_iTotal_Por_Pagina));
+        }
+        catch (Exception ex)
+        {
+            System.out.println("Error Generando la pagina solicitada. " + ex.getMessage());
+        }
 
         return  pPagina;
     }
 
     @Override
-    public void Crear_Factura(M_Venta p_Venta)
+    public M_Venta Crear_Factura(M_Venta p_Venta)
     {
-        rVenta.save(p_Venta);
+        M_Venta venta_Creada = null;
+
+        try
+        {
+            venta_Creada = rVenta.save(p_Venta);
+        }
+        catch (Exception ex)
+        {
+            System.out.println("Error Creando la Factura. " + ex.getMessage());
+        }
+
+        return venta_Creada;
     }
 
 
