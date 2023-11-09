@@ -36,7 +36,7 @@ public class OpenApiConfig
                 .title("Documentación API´s Reto EPA")
                 .version("1.0")
                 .contact(contact)
-                .description("Los metodos expuestos brindan para el Modulo de Ventas y su Reporteria.")//.termsOfService("https://www.bezkoder.com/terms")
+                .description("Los metodos expuestos que brindan funcionalidad para el Modulo de Ventas y su Reporteria.")//.termsOfService("https://www.bezkoder.com/terms")
                 //.license(mitLicense);
                 ;
 

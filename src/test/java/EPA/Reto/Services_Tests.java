@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @SpringBootTest
-class RetoApplicationTests {
+class Services_Tests {
 
 	@Autowired
 	S_Venta sVenta;

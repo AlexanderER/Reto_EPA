@@ -1,5 +1,6 @@
 package EPA.Reto;
 
+import EPA.Reto.Console.I_Menu;
 import EPA.Reto.Model.M_Venta;
 import EPA.Reto.Repository.R_Venta;
 import EPA.Reto.Service.S_Venta;
@@ -16,7 +17,7 @@ import java.util.List;
 public class RetoApplication implements CommandLineRunner
 {
 	@Autowired
-	S_Venta sVenta;
+	I_Menu iMenu;
 
 	public static void main(String[] args) {
 		SpringApplication.run(RetoApplication.class, args);
@@ -25,7 +26,6 @@ public class RetoApplication implements CommandLineRunner
 	@Override
 	public void run(String... args) throws Exception
 	{
-		//sVenta.Crear_Vista_Ventas_Por_Producto();
-		//sVenta.Actualizar_Total_Ventas();
+		iMenu.Desplegar_Menu();
 	}
 }
