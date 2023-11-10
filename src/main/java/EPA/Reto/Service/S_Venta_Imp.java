@@ -55,7 +55,8 @@ public class S_Venta_Imp implements S_Venta
                     String sNombre = producto.getName();
 
                     // Inserto o actualizo con el metodo Put acumulando uno(Representando una venta)
-                    Mapa_Ventas.put(sNombre, Mapa_Ventas.getOrDefault(sNombre, 0) + 1);
+                    //Mapa_Ventas.put(sNombre, Mapa_Ventas.getOrDefault(sNombre, 0) + 1); // Comento ya que no es por apariciones sino por sumatoria de unidades
+                    Mapa_Ventas.put(sNombre, Mapa_Ventas.getOrDefault(sNombre, 0) + producto.getQuantity());
 
                 }   // Fin Ciclo Productos
 

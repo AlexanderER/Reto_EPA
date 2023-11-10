@@ -12,9 +12,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.Value;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +27,7 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -30,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("Ventas")
 @Tag(name = "Facturas", description = "Metodos para el Manejo de Facturas")
@@ -61,9 +68,19 @@ public class C_Venta
                            })
 
     @GetMapping(value = "/Top_Productos_Vendidos/{p_iTop}/{p_sFechaInicio}/{p_sFechaFin}")
-    public ResponseEntity<?> Top_Productos_Vendidos(@Parameter(description = "Numero de registros que desea visualizar (Desde 1 hasta máximo 10)", required = true) @PathVariable int p_iTop,
-                                                    @Parameter(description = "Fecha Inicial de Busqueda. Formato: yyyy-MM-dd", required = true)                     @PathVariable String p_sFechaInicio,
-                                                    @Parameter(description = "Fecha Final de Busqueda. Formato: yyyy-MM-dd", required = true)                       @PathVariable String p_sFechaFin)
+    public ResponseEntity<?> Top_Productos_Vendidos(@Parameter(description = "Numero de registros que desea visualizar (Desde 1 hasta máximo 10)", required = true)
+                                                    @Valid @PathVariable
+                                                    @Min(value = 1, message = "[Parametro] La Cantidad de Registros debe ser mayor a cero")
+                                                    @Max(value = 10, message = "[Parametro] La Cantidad de Registros debe ser como máximo 10")
+                                                        int p_iTop,
+                                                    @Parameter(description = "Fecha Inicial de Busqueda. Formato: yyyy-MM-dd", required = true)
+                                                    @Valid @PathVariable
+                                                    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "[Parametro] Formato de Fecha Inicio Incorrecto. Formato: yyyy-MM-dd")
+                                                        String p_sFechaInicio,
+                                                    @Parameter(description = "Fecha Final de Busqueda. Formato: yyyy-MM-dd", required = true)
+                                                    @Valid @PathVariable
+                                                    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "[Parametro] Formato de Fecha Fin Incorrecto. Formato: yyyy-MM-dd")
+                                                        String p_sFechaFin)
     {
         List<M_Venta_Por_Producto> l_Venta_Por_Producto = new ArrayList<>();
 
@@ -71,7 +88,6 @@ public class C_Venta
         {
             // Defino el Formato de la Fecha
             SimpleDateFormat sdf_FormatoFecha = new SimpleDateFormat("yyyy-MM-dd");
-
 
             // Inicializo las variables de Fecha
             Date d_FechaInicio = new Date();
@@ -90,10 +106,10 @@ public class C_Venta
             }
 
             // Efectuo algunas validaciones con respecto los datos recibidos
-            if(p_iTop <= 0 || p_iTop > 10)
-            {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unicamente se permite consultar el producto más vendido o máximo los 10 productos más vendidos");
-            }
+//            if(p_iTop <= 0 || p_iTop > 10)
+//            {
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unicamente se permite consultar el producto más vendido o máximo los 10 productos más vendidos");
+//            }
 
             if(d_FechaInicio.compareTo(d_FechaFin) >= 0)
             {
@@ -117,15 +133,7 @@ public class C_Venta
     @GetMapping(value = "/Total_Productos_Vendidos")
     public ResponseEntity<List<M_Venta_Por_Producto>> Total_Productos_Vendidos()
     {
-        List<M_Venta_Por_Producto> l_Venta_Por_Producto = new ArrayList<>();
-
-        try
-        {
-            l_Venta_Por_Producto = sVenta.Obtener_Total_Productos_Vendidos();
-        }
-        catch (Exception ex)
-        {
-        }
+        List<M_Venta_Por_Producto> l_Venta_Por_Producto = sVenta.Obtener_Total_Productos_Vendidos();
 
         return ResponseEntity.ok(l_Venta_Por_Producto);
     }
@@ -140,29 +148,34 @@ public class C_Venta
                             @ApiResponse(responseCode = "404",  content = { @Content(schema = @Schema(), mediaType = "String") })
                            })
     @GetMapping(value = "/Pagina/{p_iPagina}/{p_iCantidad}")
-    public ResponseEntity<?> Obtener_Pagina(@Parameter(description = "Numero de Pagina a Consultar. Va desde 1 hasta N", required = true)       @PathVariable int p_iPagina,
-                                            @Parameter(description = "Numero de Registros por Pagina. Debe ser como minimo 1", required = true) @PathVariable int p_iCantidad)
+    public ResponseEntity<?> Obtener_Pagina(@Parameter(description = "Numero de Pagina a Consultar. Va desde 1 hasta N", required = true)
+                                            @Valid @PathVariable
+                                            @Min(value = 1, message = "[Parametro] El numero de Página debe ser mayor a cero")
+                                                int p_iPagina,
+                                            @Parameter(description = "Numero de Registros por Pagina. Debe ser como minimo 1 y maximo 100", required = true)
+                                            @Valid @PathVariable
+                                            @Min(value = 1, message = "[Parametro] La Cantidad por Página debe ser mayor a cero")
+                                            @Max(value = 100, message = "[Parametro] La Cantidad por Página debe ser como máximo 100")
+                                                int p_iCantidad)
     {
         try
         {
             // No puede ser pagina 0
-            if(p_iPagina <= 0)
-            {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El número de pagina indicado debe ser mayor a Cero.");
-            }
+//            if(p_iPagina <= 0)
+//            {
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El número de pagina indicado debe ser mayor a Cero.");
+//            }
 
-            if(p_iCantidad <= 0)
-            {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La Cantidad de Registros indicado debe ser mayor a Cero.");
-            }
+//            if(p_iCantidad <= 0)
+//            {
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La Cantidad de Registros indicado debe ser mayor a Cero.");
+//            }
 
             // Como el indice de pagina trabaja con base cero le resto uno
             int iPaginaBuscada = p_iPagina - 1;
 
             Page<M_Venta> pagina = sVenta.Obtener_Facturas_Por_Pagina(iPaginaBuscada, p_iCantidad);
 
-            int iPagina        =  pagina.getPageable().getPageNumber();
-            int itamano        =  pagina.getPageable().getPageSize();
             long lElementos    =  pagina.getTotalElements();
             long lTotalPaginas = pagina.getTotalPages();
 
@@ -173,7 +186,7 @@ public class C_Venta
             }
             else
             {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La pagina indicada no existe" +
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La página indicada no existe" +
                         "\nTotal de Elementos: " + lElementos +
                         "\nTotal de Paginas: " + lTotalPaginas);
             }
@@ -191,17 +204,11 @@ public class C_Venta
     @PostMapping(value = "/Crear")
     public ResponseEntity<?> Crear_Factura(@Valid @RequestBody M_Venta p_Venta)
     {
-        M_Venta venta_Creada = null;
-        try
-        {
-            venta_Creada = sVenta.Crear_Factura(p_Venta);
-        }
-        catch (Exception ex)
-        {
-        }
+        M_Venta venta_Creada = sVenta.Crear_Factura(p_Venta);
 
         return ResponseEntity.ok(venta_Creada);
     }
+
 
     //................................................................................................................................................................
     //................................................................................................................................................................
