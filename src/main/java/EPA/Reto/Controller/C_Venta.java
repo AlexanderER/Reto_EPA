@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -187,7 +189,7 @@ public class C_Venta
     @Operation(summary = "Crear Factura",
                description = "Este metodo se encarga de Crear una nueva Factura en la BD")
     @PostMapping(value = "/Crear")
-    public ResponseEntity<M_Venta> Crear_Factura(@RequestBody M_Venta p_Venta)
+    public ResponseEntity<?> Crear_Factura(@Valid @RequestBody M_Venta p_Venta)
     {
         M_Venta venta_Creada = null;
         try
