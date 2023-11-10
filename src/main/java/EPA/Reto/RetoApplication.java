@@ -1,16 +1,11 @@
 package EPA.Reto;
 
 import EPA.Reto.Console.I_Menu;
-import EPA.Reto.Model.M_Venta;
-import EPA.Reto.Repository.R_Venta;
-import EPA.Reto.Service.S_Venta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-
-import java.util.List;
 
 @SpringBootApplication
 @EnableMongoRepositories

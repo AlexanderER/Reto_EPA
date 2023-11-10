@@ -64,6 +64,7 @@ public class C_Venta
                description = "Este metodo retorna una lista de los productos mas vendidos(desde 1 hasta 10 maximo) en un rango de Fechas.",
                responses = {
                             @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = M_Venta_Por_Producto.class), mediaType = "application/json") }),
+                            @ApiResponse(responseCode = "400",  content = { @Content(schema = @Schema(), mediaType = "String") }),
                             @ApiResponse(responseCode = "404",  content = { @Content(schema = @Schema(), mediaType = "String") })
                            })
 
@@ -199,6 +200,7 @@ public class C_Venta
 
     //................................................................................................................................................................
     //................................................................................................................................................................
+
     @Operation(summary = "Crear Factura",
                description = "Este metodo se encarga de Crear una nueva Factura en la BD")
     @PostMapping(value = "/Crear")
@@ -208,7 +210,6 @@ public class C_Venta
 
         return ResponseEntity.ok(venta_Creada);
     }
-
 
     //................................................................................................................................................................
     //................................................................................................................................................................
